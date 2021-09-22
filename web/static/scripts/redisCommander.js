@@ -1,27 +1,27 @@
 'use strict';
 
-var CmdParser = require('cmdparser');
-var cmdparser;
-var losslessJSON = require('lossless-json');
-var simpleObjRE = /^\s*[{\[]/;
+let CmdParser = require('cmdparser');
+let cmdparser;
+let losslessJSON = require('lossless-json');
+let simpleObjRE = /^\s*[{\[]/;
 
 function loadTree () {
   $.get('apiv2/connection', function (isConnected) {
     if (isConnected) {
       $('#keyTree').on('loaded.jstree', function () {
-        var tree = getKeyTree();
+        let tree = getKeyTree();
         if (tree) {
-          var root = tree.get_container().children('ul:eq(0)').children('li');
+          let root = tree.get_container().children('ul:eq(0)').children('li');
           tree.open_node(root, null, true);
         }
       });
       $.get('connections', function (data) {
-        var json_dataData = [];
+        let json_dataData = [];
 
         if (data.connections) {
           data.connections.every(function (instance) {
             // build root objects for jstree view on left side
-            var treeObj = {
+            let treeObj = {
               id: instance.conId,
               text: instance.label + ' (' + instance.options.host + ':' + instance.options.port + ':' + instance.options.db + ')',
               state: {opened: false},
@@ -38,13 +38,13 @@ function loadTree () {
         function getJsTreeData(node, cb) {
           if (node.id === '#') return cb(json_dataData);
 
-          var dataUrl;
+          let dataUrl;
           if (node.parent === '#') {
               dataUrl = 'apiv2/keystree/' + encodeURIComponent(node.id) + '/';
           }
           else {
-              var root = getRootConnection(node);
-              var path = getFullKeyPath(node);
+              let root = getRootConnection(node);
+              let path = getFullKeyPath(node);
               dataUrl = 'apiv2/keystree/' + encodeURIComponent(root) + '/' + encodeURIComponent(path) + '?absolute=false';
           }
           $.get({
@@ -93,7 +93,7 @@ function loadTree () {
               },
               contextmenu: {
                   items: function (node) {
-                      var menu = {
+                      let menu = {
                           'renameKey': {
                             icon: './images/icon-edit.png',
                             label: 'Rename Key',
@@ -127,7 +127,7 @@ function loadTree () {
                             action: removeServer
                           }
                       };
-                      var rel = node.original.rel;
+                      let rel = node.original.rel;
                       if (typeof rel === 'undefined' ) {    // folder
                         delete menu['renameKey'];
                       }
@@ -156,13 +156,13 @@ function loadTree () {
             event.preventDefault();
           })
           .on('keyup', function (e) {
-              var key = e.which;
+              let key = e.which;
               // delete
               if (key === 46) {
-                  var node = getKeyTree().get_selected(true)[0];
+                  let node = getKeyTree().get_selected(true)[0];
                   // do not allow deletion of entire server, only keys within
                   if (node.parent !== '#') {
-                    var connId = node.parents[node.parents.length-2];
+                    let connId = node.parents[node.parents.length-2];
                     deleteKey(connId, getFullKeyPath(node));
                   }
               }
@@ -176,7 +176,7 @@ function loadTree () {
 
 function treeNodeSelected (event, data) {
   $('#body').html('Loading...');
-  var connectionId;
+  let connectionId;
   if (data.node.parent === '#') {
     connectionId = data.node.id;
     $.get('apiv2/server/' + connectionId + '/info')
@@ -193,7 +193,7 @@ function treeNodeSelected (event, data) {
               }
               else {
                 setRootConnectionNetworkError(true, data.node);
-                var html = '<h5>ERROR: ' + (instance.error ? instance.error : 'Server not available - cannot query status information.') + '</h5>';
+                let html = '<h5>ERROR: ' + (instance.error ? instance.error : 'Server not available - cannot query status information.') + '</h5>';
                 $('#body').html(html);
                 setupAddKeyButton();
               }
@@ -215,7 +215,7 @@ function treeNodeSelected (event, data) {
         });
   } else {
     connectionId = getRootConnection(data.node);
-    var path = getFullKeyPath(data.node);
+    let path = getFullKeyPath(data.node);
     return loadKey(connectionId, path);
   }
 }
@@ -226,9 +226,9 @@ function treeNodeSelected (event, data) {
  *  @param node JSTree node the error occurred to get first sibling from tree root
  */
 function setRootConnectionNetworkError (hasError, node) {
-  var tree = getKeyTree();
-  var root = getRootConnection(node);
-  var rootNode = tree.get_node(root);
+  let tree = getKeyTree();
+  let root = getRootConnection(node);
+  let rootNode = tree.get_node(root);
   if (hasError) tree.set_icon(rootNode, 'images/treeRootDisconnect.png');
   else if (tree.get_icon(rootNode) === 'images/treeRootDisconnect.png') {
     // only set icon if not already set to minimize redraws here...
@@ -300,7 +300,7 @@ function loadKey (connectionId, key, index) {
         selectTreeNodeBranch(keyData);
         break;
       default:
-        var html = JSON.stringify(keyData);
+        let html = JSON.stringify(keyData);
         $('#body').html(html);
         resizeApp();
         break;
@@ -328,8 +328,8 @@ function setupEditDataModals(idForm, idSaveBtn) {
   $('#' + idForm).off('submit').on('submit', function(event) {
     console.log('saving');
     event.preventDefault();
-    var editForm = $(event.target);
-    var editModal = editForm.closest('.modal');
+    let editForm = $(event.target);
+    let editModal = editForm.closest('.modal');
     editModal.find('#' + idSaveBtn).button('loading');
 
     $.post(editForm.attr('action'), editForm.serialize()
@@ -352,7 +352,7 @@ function setupEditDataModals(idForm, idSaveBtn) {
 }
 
 function setupJsonInputValidator(idJsonCheckbox, idInput) {
-  var chkBox = $('#' + idJsonCheckbox);
+  let chkBox = $('#' + idJsonCheckbox);
   chkBox.on('change', function(element) {
     if (element.target.checked) addInputValidator(idInput, 'json');
     else removeInputValidator(idInput);
@@ -364,21 +364,21 @@ function setupJsonInputValidator(idJsonCheckbox, idInput) {
 }
 
 function registerModalFocus(idModal, idInput) {
-  var modal = $('#' + idModal);
+  let modal = $('#' + idModal);
   modal.on('shown', function () {
     modal.find('#' + idInput).trigger('focus')
   });
 }
 
 function setupAddServerForm() {
-  var serverModal = $('#addServerModal');
+  let serverModal = $('#addServerModal');
 
   // register add server form as ajax form to send bearer token too
   $('#addServerForm').off('submit').on('submit', function (event) {
     console.log('try connection to new redis server');
     event.preventDefault();
     $('#addServerBtn').prop('disabled', true).html('<i class="icon-refresh"></i> Saving');
-    var form = $(event.target);
+    let form = $(event.target);
     $.post(form.attr('action'), form.serialize())
         .done(function () {
           if (arguments[0] && arguments[0].ok) {
@@ -431,7 +431,7 @@ function setupAddServerForm() {
 }
 
 function setupAddKeyButton (connectionId) {
-  var newKeyModal = $('#addKeyModal');
+  let newKeyModal = $('#addKeyModal');
   newKeyModal.find('#newStringValue').val('');
   newKeyModal.find('#newFieldName').val('');
   newKeyModal.find('#keyScore').val('');
@@ -439,20 +439,20 @@ function setupAddKeyButton (connectionId) {
   newKeyModal.find('#addKeyValueIsJson').prop('checked', false);
   newKeyModal.find('#addKeyFieldIsJson').prop('checked', false);
   newKeyModal.find('#keyType').on('change', function () {
-    var score = newKeyModal.find('#scoreWrap');
+    let score = newKeyModal.find('#scoreWrap');
     if ($(this).val() === 'zset') {
       score.show();
     } else {
       score.hide();
     }
-    var field = newKeyModal.find('#fieldWrap');
+    let field = newKeyModal.find('#fieldWrap');
     if ($(this).val() === 'hash') {
       field.show();
     } else {
       field.hide();
     }
-    var fieldValue = newKeyModal.find('#fieldValueWrap');
-    var timestamp = newKeyModal.find('#timestampWrap');
+    let fieldValue = newKeyModal.find('#fieldValueWrap');
+    let timestamp = newKeyModal.find('#timestampWrap');
     if ($(this).val() === 'stream') {
       fieldValue.show();
       timestamp.show();
@@ -464,10 +464,10 @@ function setupAddKeyButton (connectionId) {
 }
 
 function addNewKey() {
-  var newKeyModal = $('#addKeyModal');
-  var newKey = newKeyModal.find('#keyValue').val();
-  var connectionId = newKeyModal.find('#addKeyConnectionId').val();
-  var action = 'apiv2/key/' + encodeURIComponent(connectionId) + '/' + encodeURIComponent(newKey);
+  let newKeyModal = $('#addKeyModal');
+  let newKey = newKeyModal.find('#keyValue').val();
+  let connectionId = newKeyModal.find('#addKeyConnectionId').val();
+  let action = 'apiv2/key/' + encodeURIComponent(connectionId) + '/' + encodeURIComponent(newKey);
   console.log('saving new key ' + newKey);
   newKeyModal.find('#saveKeyButton').attr('disabled', 'disabled').html('<i class="icon-refresh"></i> Saving');
 
@@ -491,11 +491,11 @@ function addNewKey() {
 
 
 function renameExistingKey() {
-  var modal = $('#renameKeyModal');
-  var oldKey = modal.find('#currentKeyName').val();
-  var newKey = modal.find('#renamedKeyName').val();
-  var connectionId = modal.find('#renameKeyConnectionId').val();
-  var action = 'apiv2/key/' + encodeURIComponent(connectionId) + '/' + encodeURIComponent(oldKey);
+  let modal = $('#renameKeyModal');
+  let oldKey = modal.find('#currentKeyName').val();
+  let newKey = modal.find('#renamedKeyName').val();
+  let connectionId = modal.find('#renameKeyConnectionId').val();
+  let action = 'apiv2/key/' + encodeURIComponent(connectionId) + '/' + encodeURIComponent(oldKey);
   console.log('renaming ' + oldKey + ' to new key ' + newKey);
   modal.find('#renameKeyButton').attr('disabled', 'disabled').html('<i class="icon-refresh"></i> Saving');
 
@@ -528,9 +528,9 @@ function renameExistingKey() {
 
 function selectTreeNodeString (data) {
   renderEjs('templates/editString.ejs', data, $('#body'), function() {
-    var isJsonParsed = false;
+    let isJsonParsed = false;
     try {
-      var jsonObject = data.value;
+      let jsonObject = data.value;
       if (jsonObject.match(simpleObjRE)) {
         jsonObject = losslessJSON.parse(data.value, losslessJsonReviver);
         isJsonParsed = true;
@@ -552,7 +552,7 @@ function selectTreeNodeString (data) {
       $('#editStringForm').off('submit').on('submit', function(event) {
         console.log('saving');
         event.preventDefault();
-        var editForm = $(event.target);
+        let editForm = $(event.target);
         $('#saveKeyButton').attr('disabled', 'disabled').html('<i class="icon-refresh"></i> Saving');
 
         $.post(editForm.attr('action'), editForm.serialize()
@@ -577,18 +577,18 @@ function selectTreeNodeString (data) {
 
 function selectTreeNodeBinary (data) {
   // switch image from 'string' to 'binary', do not know this before really querying the value...
-  var tree = getKeyTree();
+  let tree = getKeyTree();
   tree.set_icon(tree.get_selected(true)[0], 'images/treeBinary.png');
 
   // only working for smaller data sets, no big binaries by now (everything load into browser)...
   // calc number of 8bit-columns based on current "#body".width, static widths are taken from css classes
   // TODO handle window resize
-  var idBody = $('#body');
+  let idBody = $('#body');
   data.offset = 0;
   data.columns = Math.floor( (idBody.width() - 70 - 2*20) / 34 / 8 ) * 8;
   data.value = BinaryView.base64DecToArr(data.value);
   data.positions = [];
-  for (var i = 0; i < Math.ceil(data.value.length / data.columns); i += 1) {
+  for (let i = 0; i < Math.ceil(data.value.length / data.columns); i += 1) {
     data.positions.push( BinaryView.toHex(data.offset + i * data.columns, 8) );
   }
 
@@ -658,7 +658,7 @@ function refreshTree () {
 function addKey (connectionId, key) {
   if (typeof(connectionId) === 'object') {
     // context menu click
-    var node = getKeyTree().get_node(connectionId.reference[0]);
+    let node = getKeyTree().get_node(connectionId.reference[0]);
     key = getFullKeyPath(node);
     if (key.length > 0 && !key.endsWith(foldingCharacter)) {
       key = key + foldingCharacter;
@@ -673,11 +673,11 @@ function addKey (connectionId, key) {
 function renameKey (connectionId, key) {
   if (typeof(connectionId) === 'object') {
     // context menu click
-    var node = getKeyTree().get_node(connectionId.reference[0]);
+    let node = getKeyTree().get_node(connectionId.reference[0]);
     key = getFullKeyPath(node);
     connectionId = getRootConnection(node);
   }
-  var modal = $('#renameKeyModal');
+  let modal = $('#renameKeyModal');
   modal.find('#currentKeyName').val(key);
   modal.find('#currentKeyNameDisplay').text(key);
   modal.find('#renamedKeyName').val(key);
@@ -689,7 +689,7 @@ function renameKey (connectionId, key) {
 }
 
 function exportKey (connectionId, key) {
-  var node = null;
+  let node = null;
   if (typeof (connectionId) === 'object') {
     // context menu click
     node = getKeyTree().get_node(connectionId.reference[0]);
@@ -700,7 +700,7 @@ function exportKey (connectionId, key) {
     method: 'GET',
     url: 'tools/forms/export',
     success: function (res) {
-      var body = $('#body')
+      let body = $('#body')
       body.html(res);
       body.find('#connectionExportField option[value="' + connectionId + '"]').attr('selected', true);
       body.find('#exportKeyPrefix').val(key);
@@ -709,7 +709,7 @@ function exportKey (connectionId, key) {
 }
 
 function deleteKey (connectionId, key) {
-  var node = null;
+  let node = null;
   if (typeof(connectionId) === 'object') {
       // context menu click
       node = getKeyTree().get_node(connectionId.reference[0]);
@@ -724,7 +724,7 @@ function deleteKey (connectionId, key) {
     return;
   }
   // delete this specific key only, no wildcard here
-  var result = confirm('Are you sure you want to delete "' + key + '" from "' + node.text + '"?');
+  let result = confirm('Are you sure you want to delete "' + key + '" from "' + node.text + '"?');
   if (result) {
     $.post('apiv2/key/' + encodeURIComponent(connectionId) + '/' + encodeURIComponent(key) + '?action=delete', function (data, status) {
       if (status !== 'success') {
@@ -741,7 +741,7 @@ function deleteKey (connectionId, key) {
 function decodeKey (connectionId, key) {
   if (typeof(connectionId) === 'object') {
       // context menu click
-      var node = getKeyTree().get_node(connectionId.reference[0]);
+      let node = getKeyTree().get_node(connectionId.reference[0]);
       key = getFullKeyPath(node);
       connectionId = getRootConnection(node);
   }
@@ -779,9 +779,9 @@ function encodeString (connectionId, key) {
 }
 
 function deleteBranch (connectionId, branchPrefix) {
-  var node = getKeyTree().get_node(connectionId);
-  var query = (branchPrefix.endsWith(foldingCharacter) ? branchPrefix : branchPrefix + foldingCharacter) + '*';
-  var result = confirm('Are you sure you want to delete "' + query + '" from "' + node.text + '"? This will delete all children as well!');
+  let node = getKeyTree().get_node(connectionId);
+  let query = (branchPrefix.endsWith(foldingCharacter) ? branchPrefix : branchPrefix + foldingCharacter) + '*';
+  let result = confirm('Are you sure you want to delete "' + query + '" from "' + node.text + '"? This will delete all children as well!');
   if (result) {
     $.post('apiv2/keys/' + encodeURIComponent(connectionId) + '/' + encodeURIComponent(query) + '?action=delete', function (data, status) {
       if (status !== 'success') {
@@ -885,7 +885,7 @@ function showHashField (connectionId, key, field) {
     }
     if (typeof keyData === 'string') keyData = JSON.parse(keyData);
 
-    var deferredRow = $('tr[data-deferred-field="' + field + '"');
+    let deferredRow = $('tr[data-deferred-field="' + field + '"');
     if (deferredRow) {
       // inject the data into the view
       deferredRow.find('td.text-renderer').text(keyData.data);
@@ -972,12 +972,12 @@ function removeXSetElement (connectionId, key, timestamp) {
   });
 }
 
-var redisCli = {
+let redisCli = {
   commandLineScrollTop: 0,
   cliOpen: false,
 
   hideCommandLineOutput: function hideCommandLineOutput() {
-    var output = $('#commandLineOutput');
+    let output = $('#commandLineOutput');
     if (output.is(':visible') && $('#lockCommandButton').hasClass('disabled')) {
       output.slideUp(function() {
         resizeApp();
@@ -989,7 +989,7 @@ var redisCli = {
   },
 
   showCommandLineOutput: function showCommandLineOutput() {
-    var output = $('#commandLineOutput');
+    let output = $('#commandLineOutput');
     if (!output.is(':visible') && $('#lockCommandButton').hasClass('disabled')) {
       output.slideDown(function() {
         output.scrollTop(redisCli.commandLineScrollTop);
@@ -1008,9 +1008,9 @@ var redisCli = {
       redisCli.hideCommandLineOutput();
     });
 
-    var readline = require('readline-browserify');
-    var output = document.getElementById('commandLineOutput');
-    var rl = readline.createInterface({
+    let readline = require('readline-browserify');
+    let output = document.getElementById('commandLineOutput');
+    let rl = readline.createInterface({
       elementId: 'commandLine',
       write: function(data) {
         if (output.innerHTML.length > 0) {
@@ -1055,7 +1055,7 @@ var redisCli = {
           }
           if (execData.hasOwnProperty('data')) execData = execData.data;
           if (Array.isArray(execData)) {
-            for (var i = 0; i < execData.length; i++) {
+            for (let i = 0; i < execData.length; i++) {
               rl.write((i + 1) + ') ' + JSON.stringify(execData[i]));
             }
           }
@@ -1069,11 +1069,11 @@ var redisCli = {
   },
 
   setupCLIKeyEvents: function setupCLIKeyEvents() {
-    var ctrl_down = false;
-    var isMac = navigator.appVersion.indexOf('Mac') !== -1;
-    var cli = $('#_readline_cliForm input');
+    let ctrl_down = false;
+    let isMac = navigator.appVersion.indexOf('Mac') !== -1;
+    let cli = $('#_readline_cliForm input');
     cli.on('keydown', function (e) {
-      var key = e.which;
+      let key = e.which;
       //ctrl
       if (key === 17 && isMac) {
         ctrl_down = true;
@@ -1092,7 +1092,7 @@ var redisCli = {
       }
     });
     cli.on('keyup', function (e) {
-      var key = e.which;
+      let key = e.which;
       //ctrl
       if (key === 17 && isMac) {
         ctrl_down = false;
@@ -1101,7 +1101,7 @@ var redisCli = {
   },
 
   clearCLI: function clearCLI () {
-    var cli = $('#_readline_cliForm input');
+    let cli = $('#_readline_cliForm input');
     if (cli.val() == '') {
       redisCli.hideCommandLineOutput();
     } else {
@@ -1136,7 +1136,7 @@ function removeInputValidator(inputId) {
  *  @param {boolean} [currentState] optional start state to set now
  */
 function addInputValidator(inputId, format, currentState) {
-  var input;
+  let input;
   if (typeof inputId === 'string') {
     input = $('#' + inputId)
   }
@@ -1191,14 +1191,14 @@ function validateInputAsJson() {
  * @param {boolean} success true if positive validation class shall be assigned, false for error class
  */
 function setValidationClasses(element, success) {
-  var add = (success ? 'validate-positive' : 'validate-negative');
-  var remove = (success ? 'validate-negative' : 'validate-positive');
+  let add = (success ? 'validate-positive' : 'validate-negative');
+  let remove = (success ? 'validate-negative' : 'validate-positive');
   if (element.className.indexOf(add) < 0) {
     $(element).removeClass(remove).addClass(add);
   }
 }
 
-var dataUIFuncs = {
+let dataUIFuncs = {
   /** function to toggle between display of raw strings and json object view.
    *
    *  This function shows all raw text elements (class 'text-renderer') and
@@ -1208,7 +1208,7 @@ var dataUIFuncs = {
    *  objects to show/hide
    */
   onModeStringButtonClick: function onModeStringButtonClick(parentSelector) {
-    var parent = $(parentSelector || '#itemData');
+    let parent = $(parentSelector || '#itemData');
     parent.find('.text-renderer').css('display', 'inline-block');
     parent.find('.json-renderer').css('display', 'none');
 
@@ -1225,7 +1225,7 @@ var dataUIFuncs = {
    *  objects to show/hide, its using '#itemdata' as default if not set
    */
   onModeJsonButtonClick: function onModeJsonButtonClick(parentSelector) {
-    var parent = $(parentSelector || '#itemData');
+    let parent = $(parentSelector || '#itemData');
     parent.find('.text-renderer').css('display', 'none');
     parent.find('.json-renderer').css('display', 'inline-block');
 
@@ -1242,8 +1242,8 @@ var dataUIFuncs = {
    */
   createJSONViews: function createJSONViews(jsonSelector){
     $(jsonSelector).each(function() {
-      var current = $(this);
-      var plain = current.prev().html();
+      let current = $(this);
+      let plain = current.prev().html();
       try {
         // display either as string if no valid json or as json object otherwise, ignore exception
         current.jsonViewer(losslessJSON.parse(plain, losslessJsonReviver), {withQuotes: true, withLinks: false});
@@ -1308,7 +1308,7 @@ function renderEjs(filename, data, element, callback) {
     });
 }
 
-var uiConfig = {
+let uiConfig = {
   jsonViewAsDefault: 0,
   const: {
     jsonViewString: 1 << 0,
@@ -1325,12 +1325,12 @@ var uiConfig = {
 function initCmdParser() {
   let parserOpts = {
     key: function (partial, callback) {
-      var redisConnection = $('#selectedConnection').val();
+      let redisConnection = $('#selectedConnection').val();
       $.get('apiv2/keys/' + encodeURIComponent(redisConnection) + '/' + partial + '*?limit=20', function (keyData, status) {
         if (status !== 'success') {
           return callback(new Error('Could not get keys'));
         }
-        var retData;
+        let retData;
         if (typeof keyData === 'string') retData = JSON.parse(keyData);
         else {
           if (keyData.hasOwnProperty('data')) keyData = keyData.data;
@@ -1360,7 +1360,7 @@ function initCmdParser() {
 }
 
 function removeServer (connectionId) {
-  var node;
+  let node;
   if (typeof(connectionId) === 'object') {
       // context menu click
       node = getKeyTree().get_node(connectionId.reference[0]);
@@ -1369,7 +1369,7 @@ function removeServer (connectionId) {
   else {
     node = getKeyTree().get_node(connectionId);
   }
-  var result = confirm('Are you sure you want to disconnect from "' + node.text + '"?');
+  let result = confirm('Are you sure you want to disconnect from "' + node.text + '"?');
   if (result) {
     $.post('logout/' + encodeURIComponent(connectionId), function (err, status) {
       if (status !== 'success') {
@@ -1388,7 +1388,7 @@ function addServer () {
 /** clear sensitive data (passwords) from add new server form modal and list db modal
  */
 function clearAddServerForm() {
-  var serverForm = $('#addServerForm');
+  let serverForm = $('#addServerForm');
   serverForm.find('#password').val('');
   serverForm.find('#sentinelPassword').val('');
   $('#selectServerDbList').attr('data-connstring', null).empty();
@@ -1399,19 +1399,19 @@ function clearAddServerForm() {
  *  Only fields for server type, host, port, path and passwords are used. Label and database are ignored.
  */
 function detectServerDB() {
-  var serverForm = $('#addServerForm');
+  let serverForm = $('#addServerForm');
   $.ajax({
     type: 'POST',
     url: 'login/detectDB',
     data: serverForm.serialize()
   }).done(function(data) {
-    var selectDbModal = $('#selectServerDbModal');
+    let selectDbModal = $('#selectServerDbModal');
     if (!data.ok) {
       alert('Cannot query databases used: \n' + data.message);
     }
     else {
       serverForm.closest('.modal').modal('hide');
-      var renderData = {
+      let renderData = {
         title: 'Databases found at Redis ' + data.server + ':',
         infoMessage: (data.dbs.used.length === 0 ? 'No databases found' : ''),
         dbs: data.dbs.used,
@@ -1433,14 +1433,14 @@ function detectServerDB() {
  *  do ajax post call for every selected to "/login" and reload at the end to refresh entire UI
  */
  function selectNewServerDbs() {
-  var addServerForm = $('#addServerForm');
-  var list = $('#selectServerDbModal').find('#selectServerDbList');
-  var connectionString = list.data('connstring');
-  var selected = list.find('input:checked');
+  let addServerForm = $('#addServerForm');
+  let list = $('#selectServerDbModal').find('#selectServerDbList');
+  let connectionString = list.data('connstring');
+  let selected = list.find('input:checked');
 
   Promise.all(selected.map(function(item) {
     new Promise(function(resolve, reject) {
-      var params = deparam(connectionString);
+      let params = deparam(connectionString);
       params.dbIndex = selected[item].value;
       params.label = $(selected[item]).closest('tr').find('input[type=text]').val();
       $.ajax({
@@ -1528,24 +1528,24 @@ function loadConfig (callback) {
 }
 
 function resizeApp () {
-  var body = $('#body');
-  var keyTree = $('#keyTree');
-  var sideBar =  $('#sideBar');
-  var barWidth = keyTree.outerWidth(true);
-  var newBodyWidth = $(window).width() - barWidth - parseInt(body.css('margin-left'), 10);
+  let body = $('#body');
+  let keyTree = $('#keyTree');
+  let sideBar =  $('#sideBar');
+  let barWidth = keyTree.outerWidth(true);
+  let newBodyWidth = $(window).width() - barWidth - parseInt(body.css('margin-left'), 10);
   sideBar.css('width', barWidth + "px");
   keyTree.height($(window).height() - keyTree.offset().top - $('#commandLineContainer').outerHeight(true));
   body.css({'width': newBodyWidth + "px", 'left': barWidth + "px", 'height': sideBar.css('height')});
   $('#itemData').css('margin-top', $('#itemActionsBar').outerHeight(false));
-  var cli = $('#_readline_cliForm');
+  let cli = $('#_readline_cliForm');
   cli.find('#_readline_input').width( cli.innerWidth() - cli.find('.prompt').outerWidth() -20 )
 }
 
 function setupResizeEvents () {
-  var sidebarResizing = false;
-  var sidebarFrame = $('#sideBar').width();
-  var commandResizing = false;
-  var commandFrame = $('#commandLineOutput').height();
+  let sidebarResizing = false;
+  let sidebarFrame = $('#sideBar').width();
+  let commandResizing = false;
+  let commandFrame = $('#commandLineOutput').height();
 
   $('#keyTree').on('resize', resizeApp);
   $(window).on('resize', resizeApp);
@@ -1580,13 +1580,13 @@ function setupResizeEvents () {
 }
 
 function toggleRedisModal() {
-  var redisModal = $('#redisCommandsModal');
+  let redisModal = $('#redisCommandsModal');
   // change 'modal' to 'bs.modal' for bootstrap >=3, isShown to _isShown for bootstrap 4
   if ((redisModal.data('modal') || {}).isShown) {
       redisModal.modal('hide');
   }
   else {
-      var redisIframe = redisModal.find('#redisCommandsModalSrc');
+      let redisIframe = redisModal.find('#redisCommandsModalSrc');
       if (!redisIframe.attr('src')) {
           redisIframe.attr('src', 'https://redis.io/commands');
           redisModal.find('#redisCommandsExternal').attr('href', 'https://redis.io/commands');
@@ -1689,7 +1689,7 @@ $(function() {
 
 
 function deparam(query) {
-  var pairs, i, keyValuePair, key, value, map = {};
+  let pairs, i, keyValuePair, key, value, map = {};
   // remove leading question mark if its there
   if (query.slice(0, 1) === '?') {
     query = query.slice(1);
