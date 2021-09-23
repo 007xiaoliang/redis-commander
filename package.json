@@ -64,6 +64,7 @@
     "build": "browserify -r readline-browserify -r cmdparser -r lossless-json -r @msgpack/msgpack | uglifyjs -cm -o web/static/scripts/browserify.js",
     "dev": "node ./bin/redis-commander.js --redis-host www.xiaoliang007.asia --redis-password Xlqwert109109",
     "healthcheck": "./bin/healthcheck.js",
+    "dev": "node ./bin/redis-commander.js --redis-host www.xiaoliang007.asia --redis-password Xlqwert109109",
     "postinstall": "echo '==> INFO: Errors with module \"bcrypt\" can be ignored'",
     "snyk-protect": "snyk protect",
     "helm-doc": "cd k8s && cd helm-chart && helm-docs"
