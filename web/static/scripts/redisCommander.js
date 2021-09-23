@@ -1060,22 +1060,12 @@ let redisCli = {
                             rl.write((i + 1) + ') ' + JSON.stringify(execData[i]));
                         }
                     } else {
-                        execData = redisCli.handlerMsgpack(execData)
                         rl.write(JSON.stringify(execData, null, '  '));
                     }
                 });
                 refreshTree();
             }
         });
-    },
-
-    handlerMsgpack: function (obj){
-        if(typeof obj==="object"){
-
-        }else if(typeof obj === "string"){
-            return msgpack.decode(obj)
-        }
-        return obj
     },
 
     setupCLIKeyEvents: function setupCLIKeyEvents() {
