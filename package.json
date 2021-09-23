@@ -23,6 +23,7 @@
   ],
   "main": "lib/app.js",
   "dependencies": {
+    "@msgpack/msgpack": "^2.7.1",
     "async": "3.2.1",
     "bcryptjs": "2.4.3",
     "body-parser": "1.19.0",
@@ -60,7 +61,8 @@
   },
   "preferGlobal": true,
   "scripts": {
-    "build": "browserify -r readline-browserify -r cmdparser -r lossless-json | uglifyjs -cm -o web/static/scripts/browserify.js",
+    "build": "browserify -r readline-browserify -r cmdparser -r lossless-json -r @msgpack/msgpack | uglifyjs -cm -o web/static/scripts/browserify.js",
+    "dev": "node ./bin/redis-commander.js --redis-host www.xiaoliang007.asia --redis-password Xlqwert109109",
     "healthcheck": "./bin/healthcheck.js",
     "postinstall": "echo '==> INFO: Errors with module \"bcrypt\" can be ignored'",
     "snyk-protect": "snyk protect",
