@@ -23,7 +23,7 @@
   },
   "server": {
     "address": "0.0.0.0",
-    "port": 8081,
+    "port": 7009,
     "urlPrefix": "",
     "trustProxy": false,
     "clientMaxBodySize": "100kb",
